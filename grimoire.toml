@@ -1,0 +1,33 @@
+# Grimoire book configuration for the @deckyard/unraid documentation.
+
+[book]
+title = "@deckyard/unraid"
+description = "A client for the Unraid GraphQL API: system, array, disks, Docker containers, VMs, notifications and API keys"
+language = "en"
+src = "docs"
+
+[build]
+out = "site"
+clean = true
+jobs = 0
+
+[html]
+theme = "nordic"
+mode = "auto"
+navPosition = "left"
+tocPosition = "right"
+tocDepth = 3
+sectionNumbers = true
+titleUrl = "https://deckyard.github.io/deck-unraid/"
+repoUrl = "https://github.com/deckyard/deck-unraid"
+repoLabel = "Source"
+editUrl = "https://github.com/deckyard/deck-unraid/edit/main/docs/{path}"
+
+[highlight]
+enabled = true
+
+[search]
+enabled = true
+
+[pdf]
+enabled = false

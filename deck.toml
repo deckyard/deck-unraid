@@ -1,0 +1,21 @@
+[package]
+name = "@deckyard/unraid"
+version = "0.1.0"
+description = "A client for the Unraid GraphQL API: system, array, disks, Docker containers, VMs, notifications and API keys"
+license = "LGPL-3.0-only"
+authors = ["mplx <mplx@jennifer-lang.dev>"]
+# The deck talks to an Unraid server over HTTPS, so it opens sockets. No
+# `exec`: it shells out to nothing. No `sql`.
+capabilities = ["net"]
+keywords = ["unraid", "nas", "homelab", "docker", "virtualization", "graphql", "api"]
+
+[package.urls]
+deck = "https://raw.githubusercontent.com/deckyard/deck-unraid/main/deck.toml"
+homepage = "https://github.com/deckyard/deck-unraid"
+manual = "https://deckyard.github.io/deck-unraid/"
+
+# 0.26.0 is the first release whose `graphql` module has `withRetries`,
+# `withTimeout` and `errorCodes`. Only the default binary: `jennifer-tiny`
+# has no `net` capability.
+[engines]
+jennifer = ">=0.26.0"
