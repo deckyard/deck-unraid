@@ -1,6 +1,6 @@
 [package]
 name = "@deckyard/unraid"
-version = "0.1.0"
+version = "0.2.0-dev"
 description = "A client for the Unraid GraphQL API: system, array, disks, Docker containers, VMs, notifications and API keys"
 license = "LGPL-3.0-only"
 authors = ["mplx <mplx@jennifer-lang.dev>"]

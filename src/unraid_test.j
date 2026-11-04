@@ -80,13 +80,54 @@ func fake(replies as list of Reply) {
 }
 
 /**
- * Stop a fake server.
+ * How long `finish` waits for the fake server to have answered every reply,
+ * in milliseconds. `httpd.accept` has no timeout of its own, so a client that
+ * fails before sending a request it was meant to send would otherwise leave
+ * the server, and the whole suite, waiting forever.
+ */
+def const SERVE_TIMEOUT_MS as int init 5000;
+
+/**
+ * Stop a fake server, failing the test when it did not receive one request per
+ * reply within `SERVE_TIMEOUT_MS`.
  *
  * @param f {Fake} the server
  * @return {list of Seen} what it received
  */
 func finish(f as Fake) {
-    def seen as list of Seen init task.wait($f.t);
+    return finishWithin($f, SERVE_TIMEOUT_MS);
+}
+
+/**
+ * Stop a fake server, failing the test when it did not receive one request per
+ * reply within `ms`.
+ *
+ * On a timeout the server is shut down, which wakes its parked `accept`, and
+ * its task is discarded, so the run can go on to the next test.
+ *
+ * @param f {Fake} the server
+ * @param ms {int} how long to wait, in milliseconds
+ * @return {list of Seen} what it received
+ * @throws {Error} kind `"assertion"` when the server was still waiting for a
+ *     request; anything the server's task threw, after the same cleanup
+ */
+func finishWithin(f as Fake, ms as int) {
+    def seen as list of Seen init [];
+    try {
+        $seen = task.waitTimeout($f.t, $ms);
+    } catch (e) {
+        httpd.shutdown($f.srv);
+        task.discard($f.t);
+        if ($e.kind == "timeout") {
+            throw Error{
+                kind: "assertion",
+                message: "the fake server was still waiting for a request after " +
+                    convert.toString($ms) + " ms: the client sent " +
+                    "fewer requests than the test gave replies"
+            };
+        }
+        throw $e;
+    }
     httpd.shutdown($f.srv);
     return $seen;
 }
@@ -685,4 +726,20 @@ func unknownRole() {
 
 func testRolesChecked() {
     testing.assertThrows("unknownRole", ERROR_KIND);
+}
+
+# --- the fake server ----------------------------------------------------------
+
+# A client that never sends the request a reply was given for fails the test
+# instead of leaving the server, and the run, waiting forever.
+func testAFakeServerLeftWaitingFailsTheTest() {
+    def f as Fake init fake([ok('null')]);
+    def message as string init "";
+    try {
+        finishWithin($f, 200);
+    } catch (e) {
+        testing.assertEqual($e.kind, "assertion");
+        $message = $e.message;
+    }
+    testing.assertContains($message, "still waiting for a request after 200 ms");
 }
