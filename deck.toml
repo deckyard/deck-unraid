@@ -15,7 +15,7 @@ homepage = "https://github.com/deckyard/deck-unraid"
 manual = "https://deckyard.github.io/deck-unraid/"
 
 # 0.26.0 is the first release whose `graphql` module has `withRetries`,
-# `withTimeout` and `errorCodes`. Only the default binary: `jennifer-tiny`
+# `withTimeout` and `withBackoff`. Only the default binary: `jennifer-tiny`
 # has no `net` capability.
 [engines]
 jennifer = ">=0.26.0"
