@@ -45,7 +45,7 @@ func serve(srv as httpd.Server, replies as list of Reply) {
     def seen as list of Seen init [];
     for (def r in $replies) {
         def req as httpd.Request init httpd.accept($srv);
-        def body as json.Value init json.decode(convert.stringFromBytes(httpd.body($req), "utf-8"));
+        def body as json.Value init json.decode(convert.stringFromBytes("utf-8", httpd.body($req)));
         def vars as json.Value init json.map();
         if (json.typeOf($body, "/variables") == "map") {
             $vars = json.get($body, "/variables");
@@ -184,7 +184,7 @@ func testEndpointOf() {
 func testClientSettings() {
     def c as Client init withRetries(withTimeout(withInsecure(client("tower")), 5000), 2);
     testing.assertTrue($c.insecure);
-    $c = withCaCert($c, convert.bytesFromString("PEM", "utf-8"));
+    $c = withCaCert($c, convert.bytesFromString("utf-8", "PEM"));
     testing.assertFalse($c.insecure);
     $c = withApiKey($c, "abc-DEF_123");
     def g as graphql.Client init gql($c);
