@@ -34,8 +34,12 @@ in UTC.
 
 ## Errors
 
-Every failure is `Error{kind: "unraid"}`, with a message that starts with
-`unraid:` and names the operation:
+Every failure is an `unraid.UnraidError` (kind `"unraid"`), with a message
+that starts with `unraid:` and names the operation. Its `status` field holds
+the HTTP status of a failed request and `codes` the GraphQL error codes, so
+`lists.contains($e.codes, "FORBIDDEN")` tells a missing role apart without
+reading the message. A reply over its size cap is `Error{kind: "limit"}`.
+The failures:
 
 - a GraphQL error, with the server's message and code:
   `unraid: startContainer "abc:9f2": Forbidden resource [FORBIDDEN]`. A key

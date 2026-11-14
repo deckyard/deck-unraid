@@ -145,10 +145,10 @@ func ok(data as string) {
 /**
  * The message of an error a function throws, checking its kind.
  *
- * @param e {Error} the error
+ * @param e {UnraidError} the error
  * @return {string} its message
  */
-func messageOf(e as Error) {
+func messageOf(e as UnraidError) {
     testing.assertEqual($e.kind, ERROR_KIND);
     return $e.message;
 }
@@ -254,14 +254,20 @@ func testErrorsAreUnraid() {
         Reply{status: 502, body: "<html>bad gateway</html>"}
     ]);
     def messages as list of string init [];
+    def statuses as list of int init [];
+    def codes as list of string init [];
     for (def i in 0..4) {
         try {
             online($f.c);
         } catch (e) {
             $messages[] = messageOf($e);
+            $statuses[] = $e.status;
+            $codes[] = strings.join($e.codes, ",");
         }
     }
     finish($f);
+    testing.assertEqual($statuses, [0, 200, 401, 502]);
+    testing.assertEqual($codes, ["", "FORBIDDEN", "UNAUTHENTICATED", ""]);
     testing.assertEqual(len($messages), 4);
     testing.assertEqual($messages[0], "unraid: online: the reply has no data");
     testing.assertEqual($messages[1], "unraid: online: Forbidden resource [FORBIDDEN]");

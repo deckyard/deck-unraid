@@ -10,8 +10,8 @@ Every export of `@deckyard/unraid`. Guides are listed in
 import "@deckyard/unraid/" as unraid;
 ```
 
-Every function that sends a request throws `Error{kind: "unraid"}` when it
-fails. An `id` is one the API returned, such as `Container.id`; the server
+Every function that sends a request throws an `UnraidError` (kind `"unraid"`)
+when it fails, or `Error{kind: "limit"}` for a reply over its size cap. An `id` is one the API returned, such as `Container.id`; the server
 prefix (`abc:`) may be left out.
 
 ## Constants
@@ -134,6 +134,17 @@ prefix (`abc:`) may be left out.
 | `unraid.setServerIdentity(c as Client, name as string, comment as string)` | | rename the server |
 
 ## Types
+
+### `UnraidError`
+
+Every error of kind `"unraid"`.
+
+| Field | Meaning |
+|---|---|
+| `kind as string` | always `"unraid"` |
+| `message as string` | `unraid: <operation>: <what went wrong>` |
+| `status as int` | the HTTP status of a failed GraphQL request; 0 when there was none |
+| `codes as list of string` | each GraphQL error's `extensions.code` (`UNAUTHENTICATED`, `FORBIDDEN`, ...), "" for one without; empty unless the server answered GraphQL errors |
 
 ### `Client`
 

@@ -15,7 +15,8 @@
  *
  * Unraid serves a self-signed certificate unless one was set up: trust it
  * with `withCaCert`, or turn checking off with `withInsecure`. Every failure
- * is `Error{kind: "unraid"}`.
+ * is an `UnraidError` (kind "unraid", with the HTTP `status` and the GraphQL
+ * error `codes`), except a reply over its size cap: kind "limit".
  *
  * @module unraid
  * @see https://docs.unraid.net/API/
@@ -560,8 +561,24 @@ export def struct FlashBackup {
 
 # --- errors -------------------------------------------------------------------
 
+/**
+ * A failed Unraid call. Every error of kind `"unraid"` is one, so its fields
+ * are safe to read once the kind matches.
+ *
+ * @field kind {string} always `"unraid"` (`ERROR_KIND`)
+ * @field message {string} `unraid: <operation>: <what went wrong>`
+ * @field status {int} the HTTP status of a failed GraphQL request (401, 403, 502, ...); 0 when there was none
+ * @field codes {list of string} each GraphQL error's `extensions.code` (`UNAUTHENTICATED`, `FORBIDDEN`, ...), "" for one without; empty unless the server answered GraphQL errors
+ */
+export def struct UnraidError {
+    kind as string,
+    message as string,
+    status as int,
+    codes as list of string
+};
+
 func fail(message as string) {
-    throw Error{kind: ERROR_KIND, message: "unraid: " + $message};
+    throw UnraidError{kind: ERROR_KIND, message: "unraid: " + $message, status: 0, codes: []};
 }
 
 # How much of a string an error message repeats.
@@ -774,7 +791,22 @@ func run(c as Client, what as string, document as string, variables as json.Valu
         if (strings.startsWith($message, "graphql: ")) {
             $message = $message[9..];
         }
-        fail($what + ": " + plain($message, 300));
+        # a reply over its size cap stays a reached cap
+        if ($e.kind == "limit") {
+            throw Error{kind: "limit", message: "unraid: " + $what + ": " + plain($message, 300)};
+        }
+        def status as int init 0;
+        def codes as list of string init [];
+        if ($e.kind == "graphql") {
+            $status = $e.status;
+            $codes = $e.codes;
+        }
+        throw UnraidError{
+            kind: ERROR_KIND,
+            message: "unraid: " + $what + ": " + plain($message, 300),
+            status: $status,
+            codes: $codes
+        };
     }
     if (json.typeOf($resp, "/data") != "map") {
         fail($what + ": the reply has no data");
