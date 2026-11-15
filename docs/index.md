@@ -38,7 +38,8 @@ Every failure is an `unraid.UnraidError` (kind `"unraid"`), with a message
 that starts with `unraid:` and names the operation. Its `status` field holds
 the HTTP status of a failed request and `codes` the GraphQL error codes, so
 `lists.contains($e.codes, "FORBIDDEN")` tells a missing role apart without
-reading the message. A reply over its size cap is `Error{kind: "limit"}`.
+reading the message. A reply over its size cap is `Error{kind: "limit"}`, and
+a server that cannot be reached is a `net.NetError` (kind `"net"`, below).
 The failures:
 
 - a GraphQL error, with the server's message and code:
@@ -46,7 +47,12 @@ The failures:
   without the role for an operation gets `FORBIDDEN`; no key or a wrong one,
   `UNAUTHENTICATED`.
 - an HTTP failure: `unraid: online: HTTP 502: ...`.
-- a network failure or timeout, with the `http` module's message.
+- a timeout, with the `http` module's message.
+
+A server that cannot be reached (connection refused or reset, DNS, TLS, a
+close before any answer) is not an `UnraidError`: the `http` module's
+`net.NetError` (kind `"net"`) comes through unchanged, its `reason` saying
+which, and `sent` false meaning the server never got the request.
 - a bad argument, before anything is sent: an address with credentials, a
   query or a fragment, an unknown role, importance or VM state, an empty id,
   a negative offset or a limit below 1, a passphrase that would go over

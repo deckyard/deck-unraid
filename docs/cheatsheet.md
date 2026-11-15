@@ -11,7 +11,8 @@ import "@deckyard/unraid/" as unraid;
 ```
 
 Every function that sends a request throws an `UnraidError` (kind `"unraid"`)
-when it fails, or `Error{kind: "limit"}` for a reply over its size cap. An `id` is one the API returned, such as `Container.id`; the server
+when it fails, `Error{kind: "limit"}` for a reply over its size cap, or a
+`net.NetError` (kind `"net"`) when the server cannot be reached. An `id` is one the API returned, such as `Container.id`; the server
 prefix (`abc:`) may be left out.
 
 ## Constants

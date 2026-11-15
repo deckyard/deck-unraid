@@ -16,7 +16,9 @@
  * Unraid serves a self-signed certificate unless one was set up: trust it
  * with `withCaCert`, or turn checking off with `withInsecure`. Every failure
  * is an `UnraidError` (kind "unraid", with the HTTP `status` and the GraphQL
- * error `codes`), except a reply over its size cap: kind "limit".
+ * error `codes`), except a reply over its size cap: kind "limit", and a
+ * server that cannot be reached: the `net.NetError` (kind "net") of the
+ * `http` module, passed on unchanged.
  *
  * @module unraid
  * @see https://docs.unraid.net/API/
@@ -774,7 +776,8 @@ func gql(c as Client) {
 
 /**
  * Send a document and return its `data`, turning any failure into an
- * `unraid` error that names what was asked.
+ * `unraid` error that names what was asked; a reached cap stays kind
+ * "limit" and a `net.NetError` (kind "net") goes on unchanged.
  *
  * @param c {Client} the client
  * @param what {string} the operation, for the message
@@ -787,6 +790,11 @@ func run(c as Client, what as string, document as string, variables as json.Valu
     try {
         $resp = graphql.query(gql($c), $document, $variables);
     } catch (e) {
+        # a transport failure goes on as the net.NetError it is, fields intact;
+        # its message names the host and port only, never the API key
+        if ($e.kind == "net") {
+            throw $e;
+        }
         def message as string init $e.message;
         if (strings.startsWith($message, "graphql: ")) {
             $message = $message[9..];

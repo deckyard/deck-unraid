@@ -280,16 +280,22 @@ func testErrorsAreUnraid() {
     }
 }
 
-func testNetworkFailureIsUnraid() {
+func testNetworkFailureIsANetError() {
     def srv as httpd.Server init httpd.listen("127.0.0.1:0");
     def addr as string init httpd.address($srv);
     httpd.shutdown($srv);
     def failed as bool init false;
     try {
-        online(withTimeout(client("http://" + $addr), 2000));
+        online(withTimeout(withApiKey(client("http://" + $addr), "test-key_1"), 2000));
     } catch (e) {
         $failed = true;
-        testing.assertTrue(strings.startsWith(messageOf($e), "unraid: online: "));
+        # the graphql module's net.NetError, passed on with its fields
+        testing.assertEqual($e.kind, "net");
+        testing.assertEqual($e.reason, "refused");
+        testing.assertEqual($e.op, "connect");
+        testing.assertFalse($e.sent);
+        testing.assertFalse($e.replied);
+        testing.assertFalse(strings.contains($e.message, "test-key_1"));
     }
     testing.assertTrue($failed);
 }
