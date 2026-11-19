@@ -57,6 +57,10 @@ export def const VM_STATES as list of string init [
     "PMSUSPENDED"
 ];
 
+# The hosts the API key goes to over plain http without `withPlainHttp`:
+# this machine.
+def const LOOPBACK as list of string init ["127.0.0.1", "localhost", "[::1]"];
+
 /**
  * A connection to one Unraid server. Build it with `client` and the `with*`
  * functions.
@@ -68,6 +72,8 @@ export def const VM_STATES as list of string init [
  * @field timeoutMs {int} the idle timeout of each request; 0 for 30 s
  * @field retries {int} retries of a query answered 429 or 5xx
  * @field pollMs {int} the delay between checks in `waitVm`
+ * @field allowPlainHttp {bool} whether the API key may go over plain `http`
+ *   to another machine (it then crosses the network in clear)
  */
 export def struct Client {
     url as string,
@@ -76,7 +82,8 @@ export def struct Client {
     insecure as bool,
     timeoutMs as int,
     retries as int,
-    pollMs as int
+    pollMs as int,
+    allowPlainHttp as bool
 };
 
 /**
@@ -654,7 +661,8 @@ func endpointOf(address as string) {
 }
 
 /**
- * A client for a server, with no API key yet.
+ * A client for a server, with no API key yet. An API key goes over plain
+ * `http://` only to a loopback host unless `withPlainHttp` allows it.
  *
  * @param address {string} host name, `host:port` or a full URL; a bare host gets `https://` and `/graphql`
  * @return {Client} the client; full certificate checking, 1 s polling
@@ -682,6 +690,23 @@ export func withApiKey(c as Client, key as string) {
         fail("an API key is letters, digits, - and _");
     }
     $c.apiKey = $key;
+    return $c;
+}
+
+/**
+ * Allow the API key over plain `http://` to a host that is not loopback
+ * (`localhost`, 127.0.0.0/8, `[::1]`), such as an Unraid server on the LAN
+ * without HTTPS. Without it, a request with a key to such a host throws
+ * before it connects. The key then crosses the network unencrypted: use it
+ * on a trusted network only.
+ *
+ * @param c {Client} the client
+ * @return {Client} the changed copy
+ * @example
+ *   def c as unraid.Client init unraid.withPlainHttp(unraid.client("http://tower.lan"));
+ */
+export func withPlainHttp(c as Client) {
+    $c.allowPlainHttp = true;
     return $c;
 }
 
@@ -751,12 +776,56 @@ export func withPollInterval(c as Client, ms as int) {
 # --- transport ----------------------------------------------------------------
 
 /**
- * The `graphql` client for a client's settings.
+ * Refuse the API key over plain http to another machine unless
+ * `withPlainHttp` allowed it. `gql` runs it, so every request that would
+ * carry the key is refused before anything is sent.
+ *
+ * @param c {Client} the client
+ */
+func checkPlain(c as Client) {
+    if ($c.apiKey != "" and strings.startsWith(strings.lower($c.url), "http://") and
+        not $c.allowPlainHttp) {
+        def m as regex.Match init regex.find(
+            '^[Hh][Tt][Tt][Pp]://(\[[0-9A-Fa-f:.]+\]|[^:/]+)',
+            $c.url);
+        def host as string init strings.lower($m.groups[0]);
+        if (not lists.contains(LOOPBACK, $host)) {
+            fail("plain http to " + shown($host) +
+                " would send the API key in clear: use https, or withPlainHttp");
+        }
+    }
+}
+
+/**
+ * The GraphQL client allowed to send credentials over plain http, for a
+ * client with `withPlainHttp`. From 0.27.0 `graphql.j` refuses an
+ * `Authorization` header over plain http unless its `allowInsecureHttp` is
+ * set; before 0.27.0 it has neither the field nor the check, the assignment
+ * fails at run time with kind `"runtime"`, and the client goes as it is.
+ *
+ * @param g {graphql.Client} the GraphQL client
+ * @return {graphql.Client} the changed copy
+ */
+func allowCleartext(g as graphql.Client) {
+    try {
+        $g.allowInsecureHttp = true;
+    } catch (e) {
+        if ($e.kind != "runtime") {
+            throw $e;
+        }
+    }
+    return $g;
+}
+
+/**
+ * The `graphql` client for a client's settings; refuses the API key over
+ * plain http to another machine (`checkPlain`).
  *
  * @param c {Client} the client
  * @return {graphql.Client} the GraphQL client
  */
 func gql(c as Client) {
+    checkPlain($c);
     def g as graphql.Client init graphql.client($c.url);
     if ($c.apiKey != "") {
         $g = graphql.header($g, "x-api-key", $c.apiKey);
@@ -770,6 +839,9 @@ func gql(c as Client) {
     $g = graphql.withTimeout($g, $c.timeoutMs);
     if ($c.retries > 0) {
         $g = graphql.withBackoff(graphql.withRetries($g, $c.retries), 500);
+    }
+    if ($c.allowPlainHttp) {
+        $g = allowCleartext($g);
     }
     return $g;
 }
@@ -786,9 +858,11 @@ func gql(c as Client) {
  * @return {json.Value} the reply's `data`
  */
 func run(c as Client, what as string, document as string, variables as json.Value) {
+    # outside the try: a refused plain-http key keeps its own message
+    def g as graphql.Client init gql($c);
     def resp as json.Value;
     try {
-        $resp = graphql.query(gql($c), $document, $variables);
+        $resp = graphql.query($g, $document, $variables);
     } catch (e) {
         # a transport failure goes on as the net.NetError it is, fields intact;
         # its message names the host and port only, never the API key

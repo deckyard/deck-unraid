@@ -32,6 +32,7 @@ prefix (`abc:`) may be left out.
 | `unraid.withApiKey(c as Client, key as string)` | `Client` | send `x-api-key`; letters, digits, `-` and `_` only |
 | `unraid.withCaCert(c as Client, pem as bytes)` | `Client` | trust a certificate besides the system's |
 | `unraid.withInsecure(c as Client)` | `Client` | accept any certificate |
+| `unraid.withPlainHttp(c as Client)` | `Client` | allow the key over plain `http://` to a non-loopback host; it travels unencrypted, trusted LAN only |
 | `unraid.withTimeout(c as Client, ms as int)` | `Client` | idle timeout per request; 0 for 30 s |
 | `unraid.withRetries(c as Client, n as int)` | `Client` | retry a query answered 429 or 5xx; never a mutation |
 | `unraid.withPollInterval(c as Client, ms as int)` | `Client` | how often `waitVm` checks |
@@ -158,6 +159,7 @@ Every error of kind `"unraid"`.
 | `timeoutMs as int` | idle timeout per request; 0 for 30 s |
 | `retries as int` | retries of a query answered 429 or 5xx |
 | `pollMs as int` | delay between `waitVm` checks |
+| `allowPlainHttp as bool` | whether the key may go over plain `http://` to another machine (`withPlainHttp`) |
 
 ### `Versions`
 

@@ -56,7 +56,8 @@ which, and `sent` false meaning the server never got the request.
 - a bad argument, before anything is sent: an address with credentials, a
   query or a fragment, an unknown role, importance or VM state, an empty id,
   a negative offset or a limit below 1, a passphrase that would go over
-  `http://`.
+  `http://`, an API key that would go over `http://` to another machine
+  without `withPlainHttp`.
 
 The API key never appears in a message.
 

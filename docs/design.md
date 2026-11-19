@@ -76,8 +76,17 @@ Not in scope:
 
 ## Security and limits
 
-- HTTPS by default; an explicit `http://` URL is accepted, but
-  `startArray` refuses to send an encryption passphrase over it.
+- HTTPS by default. A request carrying the API key to an `http://` URL
+  throws before it connects unless the host is this machine (`LOOPBACK`:
+  `localhost`, `127.0.0.1`, `[::1]`; any other text before the port or
+  path, userinfo included, counts as another host) or `withPlainHttp`
+  allows it, as in the `github` and `gitlab` decks. The check runs at every request, because
+  `Client.url` is a public field, and the order of the builders does not
+  matter. Home servers often serve only HTTP, hence the opt-in; with it the
+  key travels unencrypted, so it is for a trusted LAN only. The opt-in
+  also sets the `graphql` client's `allowInsecureHttp` where the
+  interpreter has it (0.27.0; skipped on a `"runtime"` error before). `startArray`
+  refuses an encryption passphrase over `http://` even then.
 - `withCaCert` trusts a self-signed certificate; `withInsecure` turns
   verification off.
 - `withApiKey` accepts only `[A-Za-z0-9_-]` and never echoes the key in its
@@ -88,7 +97,7 @@ Not in scope:
 
 ## Testing and validation
 
-- `src/unraid_test.j` (23 tests) is a white-box overlay against a loopback
+- `src/unraid_test.j` (25 tests) is a white-box overlay against a loopback
   fake GraphQL server built on `httpd`: one canned reply per request, with
   each request's document, variables, API key and `Accept` header recorded.
   Assertions are mostly on the documents and variables sent.

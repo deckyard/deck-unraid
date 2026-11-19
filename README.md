@@ -32,6 +32,11 @@ for (def ct in unraid.containers($c)) {
 unraid.startVm($c, unraid.vmByName($c, "win11").id);
 ```
 
+A key goes over plain `http://` only to this machine; for a server on the
+LAN without HTTPS, `unraid.withPlainHttp($c)` allows it, and the key then
+travels unencrypted (trusted networks only; see "Connecting" in the
+[documentation](https://deckyard.github.io/deck-unraid/)).
+
 ## Requirements
 
 Jennifer 0.26.0 or newer, default `jennifer` binary (`net`; not

@@ -300,6 +300,68 @@ func testNetworkFailureIsANetError() {
     testing.assertTrue($failed);
 }
 
+func testKeyOverPlainHttpToTheLanIsRefused() {
+    # refused before connecting: nothing listens on these addresses
+    for (def url in [
+        "http://192.168.1.10/graphql",
+        "HTTP://tower.lan:80/graphql",
+        "http://127.0.0.1.tower.lan/graphql",
+        "http://127.0.0.2/graphql",
+        "http://[::2]/graphql"
+    ]) {
+        def c as Client init withApiKey(client($url), "test-key_1");
+        def failed as bool init false;
+        try {
+            online($c);
+        } catch (e) {
+            $failed = true;
+            def message as string init messageOf($e);
+            testing.assertContains($message, "would send the API key in clear");
+            testing.assertFalse(strings.contains($message, "test-key_1"));
+        }
+        testing.assertTrue($failed);
+    }
+    # set on the field directly, the URL is checked at the request too; the
+    # host is the one after the userinfo, as `http` reads it
+    for (def url in ["http://tower.lan/graphql", "http://127.0.0.1@tower.lan/graphql"]) {
+        def direct as Client init withApiKey(client("https://tower.lan"), "test-key_1");
+        $direct.url = $url;
+        def refused as bool init false;
+        try {
+            online($direct);
+        } catch (e) {
+            $refused = true;
+            testing.assertContains(messageOf($e), "would send the API key in clear");
+        }
+        testing.assertTrue($refused);
+    }
+}
+
+func testKeyOverHttpsOrLoopbackOrOptIn() {
+    for (def url in [
+        "https://192.168.1.10/graphql",
+        "http://localhost:8080/graphql",
+        "http://LOCALHOST/graphql",
+        "http://127.0.0.1/graphql",
+        "http://[::1]:8080/graphql"
+    ]) {
+        checkPlain(withApiKey(client($url), "test-key_1"));
+    }
+    # no key, nothing to protect
+    checkPlain(client("http://192.168.1.10"));
+    def lan as Client init withPlainHttp(withApiKey(client("http://192.168.1.10"), "test-key_1"));
+    testing.assertTrue($lan.allowPlainHttp);
+    checkPlain($lan);
+    gql($lan);
+    # the order of the builders does not matter
+    checkPlain(withApiKey(withPlainHttp(client("http://tower.lan")), "test-key_1"));
+    # the fake is loopback http: a key goes through without the opt-in
+    def f as Fake init fake([ok('{"online":true}')]);
+    testing.assertFalse($f.c.allowPlainHttp);
+    testing.assertTrue(online($f.c));
+    testing.assertEqual(finish($f)[0].apiKey, "test-key_1");
+}
+
 # --- system -------------------------------------------------------------------
 
 func testSystem() {
