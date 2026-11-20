@@ -84,8 +84,8 @@ Not in scope:
   `Client.url` is a public field, and the order of the builders does not
   matter. Home servers often serve only HTTP, hence the opt-in; with it the
   key travels unencrypted, so it is for a trusted LAN only. The opt-in
-  also sets the `graphql` client's `allowInsecureHttp` where the
-  interpreter has it (0.27.0; skipped on a `"runtime"` error before). `startArray`
+  also sets the `graphql` client's `allowInsecureHttp`, without which
+  `graphql` refuses credentials over plain http. `startArray`
   refuses an encryption passphrase over `http://` even then.
 - `withCaCert` trusts a self-signed certificate; `withInsecure` turns
   verification off.
@@ -117,9 +117,10 @@ Not in scope:
 
 ## Dependencies on the interpreter
 
-- Floor `jennifer >=0.26.0`: the first release whose `graphql` module has
-  `withRetries`, `withTimeout` and `withBackoff` (the module itself is
-  M22.7). The default binary only.
+- Floor `jennifer >=0.27.0`: the first release whose `graphql` module has
+  `withSkipVerify` (the stance-8 name for `insecure`, removed in 0.28.0) and
+  `allowInsecureHttp`; `withRetries`, `withTimeout` and `withBackoff` came in
+  0.26.0. The default binary only.
 - `graphql.GraphqlError` with `status` and `codes`, and thrown structs
   classified by kind (`jennifer` `6abf345`, the error-struct work of M28.51
   to M28.57); transport failures as `net.NetError` (M28.65).

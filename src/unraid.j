@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: LGPL-3.0-only
 # SPDX-FileCopyrightText: Copyright (C) 2026 mplx <mplx@jennifer-lang.dev>
-# pragma-jennifer-version: >=0.26.0
+# pragma-jennifer-version: >=0.27.0
 # pragma-jennifer-capability: net
 
 /**
@@ -797,27 +797,6 @@ func checkPlain(c as Client) {
 }
 
 /**
- * The GraphQL client allowed to send credentials over plain http, for a
- * client with `withPlainHttp`. From 0.27.0 `graphql.j` refuses an
- * `Authorization` header over plain http unless its `allowInsecureHttp` is
- * set; before 0.27.0 it has neither the field nor the check, the assignment
- * fails at run time with kind `"runtime"`, and the client goes as it is.
- *
- * @param g {graphql.Client} the GraphQL client
- * @return {graphql.Client} the changed copy
- */
-func allowCleartext(g as graphql.Client) {
-    try {
-        $g.allowInsecureHttp = true;
-    } catch (e) {
-        if ($e.kind != "runtime") {
-            throw $e;
-        }
-    }
-    return $g;
-}
-
-/**
  * The `graphql` client for a client's settings; refuses the API key over
  * plain http to another machine (`checkPlain`).
  *
@@ -834,14 +813,15 @@ func gql(c as Client) {
         $g = graphql.withCA($g, $c.caCert);
     }
     if ($c.insecure) {
-        $g = graphql.insecure($g);
+        $g = graphql.withSkipVerify($g);
     }
     $g = graphql.withTimeout($g, $c.timeoutMs);
     if ($c.retries > 0) {
         $g = graphql.withBackoff(graphql.withRetries($g, $c.retries), 500);
     }
     if ($c.allowPlainHttp) {
-        $g = allowCleartext($g);
+        # graphql refuses credentials over plain http without it
+        $g.allowInsecureHttp = true;
     }
     return $g;
 }
