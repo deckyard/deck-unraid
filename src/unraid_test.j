@@ -9,6 +9,7 @@
  * server on a loopback port that answers canned GraphQL replies in order and
  * hands back the document, variables and API key it received.
  */
+use encoding;
 use httpd;
 use task;
 use testing;
@@ -45,7 +46,7 @@ func serve(srv as httpd.Server, replies as list of Reply) {
     def seen as list of Seen init [];
     for (def r in $replies) {
         def req as httpd.Request init httpd.accept($srv);
-        def body as json.Value init json.decode(convert.stringFromBytes("utf-8", httpd.body($req)));
+        def body as json.Value init json.decode(encoding.decode("utf-8", httpd.body($req)));
         def vars as json.Value init json.map();
         if (json.typeOf($body, "/variables") == "map") {
             $vars = json.get($body, "/variables");
@@ -184,7 +185,7 @@ func testEndpointOf() {
 func testClientSettings() {
     def c as Client init withRetries(withTimeout(withInsecure(client("tower")), 5000), 2);
     testing.assertTrue($c.insecure);
-    $c = withCaCert($c, convert.bytesFromString("utf-8", "PEM"));
+    $c = withCaCert($c, encoding.encode("utf-8", "PEM"));
     testing.assertFalse($c.insecure);
     $c = withApiKey($c, "abc-DEF_123");
     def g as graphql.Client init gql($c);
@@ -223,7 +224,9 @@ func testReaders() {
     testing.assertEqual(nameOf([]), "");
     testing.assertEqual(bareId("abc:123-uuid"), "123-uuid");
     testing.assertEqual(plain("a\nb", 10), "a?b");
-    testing.assertEqual(shown(strings.repeat("x", 70)), "\"" + strings.repeat("x", 60) + "...\"");
+    testing.assertEqual(
+        shown(strings.replicate("x", 70)),
+        "\"" + strings.replicate("x", 60) + "...\"");
 }
 
 # --- transport and errors -----------------------------------------------------

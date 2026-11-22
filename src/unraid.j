@@ -606,7 +606,7 @@ func plain(text as string, most as int) {
     def cut as string init $text;
     def more as string init "";
     if (len($text) > $most) {
-        $cut = strings.substring($text, 0, $most);
+        $cut = $text[..$most];
         $more = "...";
     }
     return regex.replace("[^ -~]", $cut, "?") + $more;
