@@ -11,7 +11,7 @@ def m as unraid.Metrics init unraid.metrics($c);
 io.printf("CPU %s percent, memory %s percent\n", convert.toString($m.cpuPercent), convert.toString($m.memPercent));
 ```
 
-`version` gives the Unraid, API and kernel versions. `services` lists the
+`version` gives the Unraid™, API and kernel versions. `services` lists the
 services the API reports on, `upsDevices` the power supplies it monitors
 (empty without one).
 

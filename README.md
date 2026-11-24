@@ -5,8 +5,8 @@
 [![release](https://img.shields.io/github/v/release/deckyard/deck-unraid)](https://github.com/deckyard/deck-unraid/releases/latest)
 
 A [Jennifer](https://jennifer-lang.dev/) client for the
-[Unraid API](https://docs.unraid.net/API/), the GraphQL API of Unraid 7.2 and
-newer: system and metrics, the array, disks, shares and parity checks, Docker
+[Unraid™ API](https://docs.unraid.net/API/), the GraphQL API of Unraid 7.2 and
+newer: system and metrics, the array, disks, shares and parity checks, Docker™
 containers, virtual machines, notifications, logs and API keys.
 
 **[Documentation](https://deckyard.github.io/deck-unraid/)**
@@ -58,3 +58,11 @@ LGPL-3.0-only, see [LICENSE](LICENSE). Copyright (C) 2026 mplx &lt;mplx@jennifer
 
 `tools/check-headers.sh` checks every source file's SPDX header against
 `deck.toml`.
+
+## Trademarks
+
+Unraid™ is a trademark of Lime Technology, Inc. Docker™ is a trademark of
+Docker, Inc. Other product and company names may be trademarks of their
+respective owners. They are used only to identify the products this deck
+works with. This deck is an independent project, not affiliated with,
+sponsored or endorsed by Lime Technology, Inc. or Docker, Inc.

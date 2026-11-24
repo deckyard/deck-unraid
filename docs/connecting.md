@@ -41,7 +41,7 @@ LAN only, with a `VIEWER` key where reading is enough, and prefer HTTPS
 with `withCaCert`. `startArray` refuses an encryption passphrase over
 `http://` even then.
 
-Unraid uses a self-signed certificate until one is set up. Trust it with
+Unraid™ uses a self-signed certificate until one is set up. Trust it with
 `withCaCert` (export it from the browser, or copy
 `/boot/config/ssl/certs/` from the server); `withInsecure` turns checking
 off.

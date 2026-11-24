@@ -3,10 +3,10 @@
 
 # @deckyard/unraid
 
-A client for the [Unraid API](https://docs.unraid.net/API/), the GraphQL API
+A client for the [Unraid™ API](https://docs.unraid.net/API/), the GraphQL API
 Unraid 7.2 and newer serve at `/graphql` (older releases with the Unraid
 Connect plugin). `query` sends any document; typed functions cover the
-system, the array and its disks, shares, parity checks, Docker containers,
+system, the array and its disks, shares, parity checks, Docker™ containers,
 virtual machines, notifications, logs and API keys.
 
 The API manages what exists: it cannot create containers or virtual
@@ -77,3 +77,11 @@ or 5xx.
 Jennifer 0.27.0 or newer, default `jennifer` binary: the deck needs the
 `net` capability, which `jennifer-tiny` lacks. The server needs Unraid 7.2
 or newer, or the Unraid Connect plugin.
+
+## Trademarks
+
+Unraid™ is a trademark of Lime Technology, Inc. Docker™ is a trademark of
+Docker, Inc. Other product and company names may be trademarks of their
+respective owners. They are used only to identify the products this deck
+works with. This deck is an independent project, not affiliated with,
+sponsored or endorsed by Lime Technology, Inc. or Docker, Inc.

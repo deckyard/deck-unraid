@@ -43,7 +43,7 @@ prefix (`abc:`) may be left out.
 | Function | Returns | Does |
 |---|---|---|
 | `unraid.online(c as Client)` | `bool` | whether the server reports itself online |
-| `unraid.version(c as Client)` | `Versions` | Unraid, API and kernel versions |
+| `unraid.version(c as Client)` | `Versions` | Unraid™, API and kernel versions |
 | `unraid.info(c as Client)` | `SystemInfo` | name, OS, CPU, boot time |
 | `unraid.metrics(c as Client)` | `Metrics` | CPU load and memory use |
 | `unraid.services(c as Client)` | `list of Service` | the services the API reports on |
@@ -77,7 +77,7 @@ prefix (`abc:`) may be left out.
 
 | Function | Returns | Does |
 |---|---|---|
-| `unraid.containers(c as Client)` | `list of Container` | every Docker container |
+| `unraid.containers(c as Client)` | `list of Container` | every Docker™ container |
 | `unraid.container(c as Client, id as string)` | `Container` | one container |
 | `unraid.containerByName(c as Client, name as string)` | `Container` | by name, with or without the leading `/` |
 | `unraid.startContainer(c as Client, id as string)` | `Container` | start it |
@@ -167,7 +167,7 @@ Every error of kind `"unraid"`.
 |---|---|
 | `unraid as string` | e.g. `7.2.0` |
 | `api as string` | the Unraid API's version |
-| `kernel as string` | the Linux kernel |
+| `kernel as string` | the Linux™ kernel |
 
 ### `SystemInfo`
 

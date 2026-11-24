@@ -11,7 +11,7 @@ def plex as unraid.Container init unraid.containerByName($c, "plex");
 $plex = unraid.restartContainer($c, $plex.id);
 ```
 
-`name` is the container's first name without Docker's leading `/`;
+`name` is the container's first name without Docker™'s leading `/`;
 `containerByName` accepts either form. `state` is `RUNNING`, `PAUSED` or
 `EXITED`.
 
@@ -21,7 +21,7 @@ $plex = unraid.restartContainer($c, $plex.id);
 template; `updateAllContainers` does that for every one with
 `updateAvailable`. `removeContainer(c, id, withImage)` removes it.
 
-The API cannot create containers: Unraid makes them from templates in the
+The API cannot create containers: Unraid™ makes them from templates in the
 web UI.
 
 ## Logs

@@ -19,7 +19,7 @@ from then on.
 
 ## Plugins, flash and rclone
 
-`plugins` lists the installed plugins, `flash` the USB device Unraid boots
+`plugins` lists the installed plugins, `flash` the USB device Unraid™ boots
 from. `backupFlash(c, remoteName, sourcePath, destinationPath)` copies the
 flash device to an rclone remote (`rcloneRemotes`, `createRcloneRemote`,
 `deleteRcloneRemote`); the copy runs on the server and the result names its

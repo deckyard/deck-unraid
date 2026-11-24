@@ -5,10 +5,10 @@
 
 ## Scope
 
-`@deckyard/unraid` is a client for the Unraid API, the GraphQL API that
+`@deckyard/unraid` is a client for the Unraid™ API, the GraphQL API that
 Unraid 7.2 and newer serve at `/graphql` (older releases with the Unraid
 Connect plugin): system information and metrics, services, UPS, logs, the
-array, disks, shares and parity checks, Docker containers, virtual machines,
+array, disks, shares and parity checks, Docker™ containers, virtual machines,
 notifications, API keys, plugins, flash backup and rclone remotes. `query`
 sends any document.
 

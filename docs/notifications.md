@@ -3,7 +3,7 @@
 
 # Notifications
 
-Unraid's notifications are what its web UI shows and mails out. A program can
+Unraid™'s notifications are what its web UI shows and mails out. A program can
 raise its own:
 
 ```jennifer
