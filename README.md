@@ -39,7 +39,7 @@ travels unencrypted (trusted networks only; see "Connecting" in the
 
 ## Requirements
 
-Jennifer 0.27.0 or newer, default `jennifer` binary (`net`; not
+Jennifer 0.28.0 or newer, default `jennifer` binary (`net`; not
 `jennifer-tiny`). An Unraid server running 7.2 or newer, or the Unraid
 Connect plugin, and an API key.
 

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: LGPL-3.0-only
 # SPDX-FileCopyrightText: Copyright (C) 2026 mplx <mplx@jennifer-lang.dev>
-# pragma-jennifer-version: >=0.27.0
+# pragma-jennifer-version: >=0.28.0
 # pragma-jennifer-capability: net
 
 /**
@@ -31,6 +31,7 @@
 use convert;
 use json;
 use lists;
+use math;
 use regex;
 use strings;
 use time;
@@ -959,7 +960,7 @@ func whole(v as json.Value, ptr as string, missing as int) {
         if ($f > 9.0e18 or $f < -9.0e18) {
             return $missing;
         }
-        return convert.toInt($f // 1);
+        return math.trunc($f // 1);
     }
     if ($t == "string") {
         def s as string init strings.trim(json.asString($v, $ptr));

@@ -74,7 +74,7 @@ or 5xx.
 
 ## Requirements
 
-Jennifer 0.27.0 or newer, default `jennifer` binary: the deck needs the
+Jennifer 0.28.0 or newer, default `jennifer` binary: the deck needs the
 `net` capability, which `jennifer-tiny` lacks. The server needs Unraid 7.2
 or newer, or the Unraid Connect plugin.
 

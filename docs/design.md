@@ -117,7 +117,7 @@ Not in scope:
 
 ## Dependencies on the interpreter
 
-- Floor `jennifer >=0.27.0`: the first release whose `graphql` module has
+- Floor `jennifer >=0.28.0` (the calls 0.29.0 removes are replaced by their 0.28.0 forms); 0.27.0 was the first release whose `graphql` module has
   `withSkipVerify` (the stance-8 name for `insecure`, removed in 0.28.0) and
   `allowInsecureHttp`; `withRetries`, `withTimeout` and `withBackoff` came in
   0.26.0. The default binary only.
